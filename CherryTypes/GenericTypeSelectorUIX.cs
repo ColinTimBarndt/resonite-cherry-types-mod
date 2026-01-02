@@ -66,7 +66,7 @@ internal static class GenericTypeSelectorUIX {
 		if (button == null)
 			return;
 
-		var parsed = string.IsNullOrEmpty(text) ? null : NiceTypeParser.TryParse(text);
+		var parsed = string.IsNullOrEmpty(text) ? null : text.World.Types.ParseNiceType(text, allowAmbigious: true);
 		button.ActiveSelf = parsed != null;
 		if (parsed == null)
 			return;
@@ -82,10 +82,11 @@ internal static class GenericTypeSelectorUIX {
 
 	private static void OnTypeFieldFavPressed(IButton btn, ButtonEventData _) {
 		var textField = btn.Slot.Parent.GetComponentInChildren<TextField>();
+		var types = btn.Slot.World.Types;
 		if (textField == null || string.IsNullOrEmpty(textField.Text.Content))
 			return;
 
-		var parsed = NiceTypeParser.TryParse(textField.Text.Content);
+		var parsed = types.ParseNiceType(textField.Text.Content, allowAmbigious: true);
 		if (parsed == null)
 			return;
 
@@ -102,7 +103,6 @@ internal static class GenericTypeSelectorUIX {
 		if (selector == null || root?.Parent == null || string.IsNullOrEmpty(root.Tag))
 			return;
 
-		var types = btn.Slot.World.Types;
 		var genType = types.DecodeType(root.Tag);
 		if (genType.GetGenericArguments().Length != 1)
 			return;
@@ -234,7 +234,7 @@ internal static class GenericTypeSelectorUIX {
 			if (textField == null || favBtn == null || !favBtn.ActiveSelf || string.IsNullOrEmpty(textField.Text.Content))
 				continue;
 
-			var parsed = NiceTypeParser.TryParse(textField.Text.Content);
+			var parsed = types.ParseNiceType(textField.Text.Content, allowAmbigious: true);
 			if (parsed != favType)
 				continue;
 
