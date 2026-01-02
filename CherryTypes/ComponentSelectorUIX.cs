@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using Elements.Core;
@@ -8,67 +9,129 @@ using FrooxEngine.UIX;
 namespace CherryTypes;
 
 internal static class ComponentSelectorUIX {
-	internal static void BuildGenericTypeUI(ComponentSelector selector, ComponentSelectorContext ctx, string? group, bool doNotGenerateBack) {
+	internal static void SetupUIBuilder(UIBuilder ui) {
+		RadiantUI_Constants.SetupEditorStyle(ui, extraPadding: true);
+		ui.Style.TextAlignment = Alignment.MiddleLeft;
+		ui.Style.ButtonTextAlignment = Alignment.MiddleLeft;
+		ui.Style.MinHeight = 32f;
+	}
+
+	internal static void BuildGenericTypeUI(ComponentSelectorContext ctx, string? group, bool doNotGenerateBack) {
 		string sourcePath = PathUtility.GetDirectoryName(ctx.path).Replace('\\', '/');
 		Type? genType = Type.GetType(PathUtility.GetFileName(ctx.path));
-		if (genType == null)
+		if (genType == null || !genType.IsGenericType)
 			return;
 
 		var ui = ctx.ui;
-		LocaleString text;
-		colorX? tint;
 
 		ctx._genericType.Value = genType!;
 		if (!doNotGenerateBack) {
 			if (group != null) {
 				sourcePath = sourcePath + "?" + group;
 			}
-			text = "ComponentSelector.Back".AsLocaleKey();
-			tint = RadiantUI_Constants.BUTTON_COLOR;
-			ui.Button(in text, in tint, ComponentSelectorPatch.onOpenCategoryPressed(selector), sourcePath, 0.35f);
-		}
-		text = "ComponentSelector.CustomGenericArguments".AsLocaleKey();
-		ui.Text(in text);
-		Type[] args = genType.GetGenericArguments();
-		for (int j = 0; j < args.Length; j++) {
-			text = args[j].Name;
-			TextField textField = ui.HorizontalElementWithLabel(in text, 0.05f, () => ui.TextField(parseRTF: false));
-			if (selector.GenericArgumentPrefiller.Target != null) {
-				textField.TargetString = selector.GenericArgumentPrefiller.Target(genType, args[j]);
-			}
-			ctx._customGenericArguments.Add(textField);
-		}
-		text = "";
-		tint = RadiantUI_Constants.BUTTON_COLOR;
-		Button button2 = ui.Button(in text, in tint, ComponentSelectorPatch.onCreateCustomType(selector), 0.35f);
-		ctx._customGenericTypeLabel.Target = button2.Label.Content;
-		ctx._customGenericTypeColor.Target = button2.BaseColor;
-		text = "ComponentSelector.CommonGenericTypes".AsLocaleKey();
-		ui.Text(in text);
-
-		var onAddComponentPressed = ComponentSelectorPatch.onAddComponentPressed(selector);
-
-		int i = 0;
-		foreach (Type commonType in WorkerInitializer.GetCommonGenericTypes(genType)) {
-			try {
-				if (!commonType.IsValidGenericType(validForInstantiation: true) || !selector.World.Types.IsSupported(commonType))
-					continue;
-			} catch (Exception ex) {
-				CherryTypes.Warn($"Exception checking validity of a generic type: {commonType?.ToString()} for {genType?.ToString()}\n" + ex);
-				continue;
-			}
-			text = commonType.GetNiceName();
-			tint = RadiantUI_Constants.Sub.CYAN;
-			var button = ui.Button(in text, in tint, onAddComponentPressed, selector.World.Types.EncodeType(commonType), 0.35f);
-			button.Label.ParseRichText.Value = false;
-			if (commonType.GetGenericArguments()[0] == typeof(float3)) button.Slot.OrderOffset = 1;
-			else button.Slot.OrderOffset = 10 + i++;
+			ui.Button(
+				"ComponentSelector.Back".AsLocaleKey(),
+				RadiantUI_Constants.BUTTON_COLOR,
+				ComponentSelectorPatch.onOpenCategoryPressed(ctx.selector),
+				sourcePath,
+				doublePressDelay: 0.35f
+			);
 		}
 
-
+		GenericTypeSelectorUIX.BuildCustomArgsUI(ctx, ui, genType);
+		GenericTypeSelectorUIX.BuildCommonTypesUI(ctx, ui, genType);
 	}
 
-	internal static void BuildCategoryUI(ComponentSelector selector, ComponentSelectorContext ctx, string? group, bool doNotGenerateBack) {
+	internal static colorX GetFavButtonColor(bool isFav)
+		=> isFav
+			? RadiantUI_Constants.Hero.YELLOW
+			: RadiantUI_Constants.DarkLight.YELLOW;
+
+	internal static bool TryGetKind(this ComponentSelector selector, [NotNullWhen(true)] out FavoritesCategory category) {
+		var type = selector.ComponentSelected.Target?.Method.DeclaringType;
+
+		if (type == typeof(FrooxEngine.SceneInspector)) {
+			category = FavoritesCategory.Components;
+			return true;
+		}
+
+		if (type == typeof(FrooxEngine.ProtoFlux.ProtoFluxTool)) {
+			category = FavoritesCategory.ProtoFluxNodes;
+			return true;
+		}
+
+		category = (FavoritesCategory)(-1);
+		return false;
+	}
+
+	/// <summary>
+	/// Button event handler for all component favorite buttons.
+	/// </summary>
+	internal static void OnFavPressed(IButton btn, ButtonEventData _) {
+		// Tag: <category> <add/remove> <type>
+		// category: 'T' = Type, 'C' = Component, 'P' = ProtoFlux Node
+		// add/remove: '+' or '-'
+		string? tag = btn.Slot.Tag;
+		if (string.IsNullOrEmpty(tag) || tag.Length < 3) return;
+		sbyte setFav = tag[1] switch {
+			'+' => 1,
+			'-' => 0,
+			_ => -1,
+		};
+		if (setFav == -1)
+			return;
+
+		var types = btn.World.Types;
+		var typeStr = tag[2..];
+		var type = types.DecodeType(typeStr);
+		if (type == null)
+			return;
+
+		var selector = btn.Slot.GetComponentInParents<ComponentSelector>();
+		if (selector == null)
+			return;
+
+		FavoritesCategory category;
+		Type? favType = type;
+		switch (tag[0]) {
+			case 'T':
+				category = FavoritesCategory.Types;
+				favType = type.GetGenericArguments().FirstOrDefault();
+				if (favType == null)
+					return;
+				break;
+
+			case 'C':
+				category = FavoritesCategory.Components;
+				break;
+
+			case 'P':
+				category = FavoritesCategory.ProtoFluxNodes;
+				break;
+
+			default:
+				return;
+		}
+
+		var favorites = CherryTypes.FavoritesConfig![category];
+		if (setFav == 1)
+			favorites.Add(favType);
+		else
+			favorites.Remove(favType);
+
+		if (category != FavoritesCategory.Types)
+			return;
+
+		var root = btn.Slot?.Parent?.Parent;
+		if (root == null)
+			return;
+
+		GenericTypeSelectorUIX.UpdateComponentButtonsFavType(selector, types, root, type);
+	}
+
+	// TODO: Move parts into its own class
+	internal static void BuildCategoryUI(ComponentSelectorContext ctx, string? group, bool doNotGenerateBack) {
+		var types = ctx.selector.World.Types;
 		var ui = ctx.ui;
 		LocaleString text;
 		colorX? tint;
@@ -87,7 +150,7 @@ internal static class ComponentSelectorUIX {
 		if (root != WorkerInitializer.ComponentLibrary && !doNotGenerateBack) {
 			text = "ComponentSelector.Back".AsLocaleKey();
 			tint = RadiantUI_Constants.BUTTON_COLOR;
-			ui.Button(in text, in tint, ComponentSelectorPatch.onOpenCategoryPressed(selector), (group == null) ? root.Parent.GetPath() : ctx.path, 0.35f);
+			ui.Button(in text, in tint, ComponentSelectorPatch.onOpenCategoryPressed(ctx.selector), (group == null) ? root.Parent.GetPath() : ctx.path, 0.35f);
 		}
 		KeyCounter<string>? groupCounter = null;
 		HashSet<string>? generatedGroups = null;
@@ -96,14 +159,14 @@ internal static class ComponentSelectorUIX {
 			foreach (CategoryNode<Type> cat in root.Subcategories) {
 				text = cat.Name + " >";
 				tint = RadiantUI_Constants.Sub.YELLOW;
-				ui.Button(in text, in tint, ComponentSelectorPatch.onOpenCategoryPressed(selector), ctx.path + "/" + cat.Name, 0.35f)
+				ui.Button(in text, in tint, ComponentSelectorPatch.onOpenCategoryPressed(ctx.selector), ctx.path + "/" + cat.Name, 0.35f)
 					.Label.ParseRichText.Value = false;
 			}
 
 			groupCounter = [];
 			generatedGroups = [];
 			foreach (Type type2 in root.Elements) {
-				if (!selector.World.Types.IsSupported(type2))
+				if (!types.IsSupported(type2))
 					continue;
 
 				var grouping2 = type2.GetCustomAttribute<GroupingAttribute>();
@@ -114,12 +177,12 @@ internal static class ComponentSelectorUIX {
 		}
 
 		List<Button> navButtons = Pool.BorrowList<Button>();
-		var openGroupPressed = ComponentSelectorPatch.openGroupPressed(selector);
-		var openGenericTypesPressed = ComponentSelectorPatch.openGenericTypesPressed(selector);
-		var onAddComponentPressed = ComponentSelectorPatch.onAddComponentPressed(selector);
+		var openGroupPressed = ComponentSelectorPatch.openGroupPressed(ctx.selector);
+		var openGenericTypesPressed = ComponentSelectorPatch.openGenericTypesPressed(ctx.selector);
+		var onAddComponentPressed = ComponentSelectorPatch.onAddComponentPressed(ctx.selector);
 
 		foreach (Type type in root.Elements) {
-			if (!selector.World.Types.IsSupported(type) || (selector.ComponentFilter.Target != null && !selector.ComponentFilter.Target(type))) {
+			if (!types.IsSupported(type) || (ctx.selector.ComponentFilter.Target != null && !ctx.selector.ComponentFilter.Target(type))) {
 				continue;
 			}
 			var grouping = type.GetCustomAttribute<GroupingAttribute>();
@@ -155,7 +218,7 @@ internal static class ComponentSelectorUIX {
 				// This is a regular type
 				text = type.GetNiceName();
 				tint = RadiantUI_Constants.Sub.CYAN;
-				button = ui.Button(in text, in tint, onAddComponentPressed, selector.World.Types.EncodeType(type), 0.35f);
+				button = ui.Button(in text, in tint, onAddComponentPressed, types.EncodeType(type), 0.35f);
 			}
 			button.Label.ParseRichText.Value = false;
 			navButtons.Add(button);

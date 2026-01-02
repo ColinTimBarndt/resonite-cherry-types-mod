@@ -9,7 +9,12 @@ using HarmonyLib;
 
 namespace CherryTypes;
 
+/// <summary>
+/// Since we can't access non-public members without reflection,
+/// we pass them around using a context.
+/// </summary>
 internal record ComponentSelectorContext {
+	public required ComponentSelector selector;
 	public required string? path;
 	public required UIBuilder ui;
 	public required Sync<string> _rootPath;
@@ -80,14 +85,12 @@ internal static class ComponentSelectorPatch {
 		____customGenericArguments.Clear();
 		____genericType.Value = null!;
 		UIBuilder ui = new(____uiRoot.Target);
-		RadiantUI_Constants.SetupEditorStyle(ui, extraPadding: true);
-		ui.Style.TextAlignment = Alignment.MiddleLeft;
-		ui.Style.ButtonTextAlignment = Alignment.MiddleLeft;
-		ui.Style.MinHeight = 32f;
+		ComponentSelectorUIX.SetupUIBuilder(ui);
 		LocaleString text;
 		colorX? tint;
 
 		ComponentSelectorContext ctx = new() {
+			selector = __instance,
 			path = normPath,
 			ui = ui,
 			_rootPath = ____rootPath,
@@ -99,9 +102,9 @@ internal static class ComponentSelectorPatch {
 		};
 
 		if (genericType) {
-			ComponentSelectorUIX.BuildGenericTypeUI(__instance, ctx, group, noBack);
+			ComponentSelectorUIX.BuildGenericTypeUI(ctx, group, noBack);
 		} else {
-			ComponentSelectorUIX.BuildCategoryUI(__instance, ctx, group, noBack);
+			ComponentSelectorUIX.BuildCategoryUI(ctx, group, noBack);
 		}
 
 		text = "General.Cancel".AsLocaleKey();
