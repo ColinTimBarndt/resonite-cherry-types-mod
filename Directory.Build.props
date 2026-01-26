@@ -4,6 +4,10 @@
 		<ResoniteUseMonkeyLoaderCore>false</ResoniteUseMonkeyLoaderCore>
 		<ResoniteUsePublicizedAssemblies>false</ResoniteUsePublicizedAssemblies>
 		<ResoniteInstallOnBuild Condition="'$(ResoniteInstallOnBuild)'==''">true</ResoniteInstallOnBuild>
+		<ResoniteForceReferenceAssemblies>true</ResoniteForceReferenceAssemblies>
+
+		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+		<DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
 	</PropertyGroup>
 
 	<ItemGroup>

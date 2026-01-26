@@ -2,13 +2,11 @@ name: build attested
 
 on:
   push:
-    branches: [main]
-
-env:
-  DOTNET_VERSION: "10.0.100"
+    tags:
+      - v*
 
 jobs:
-  build-and-test:
+  build-attested:
     name: build-and-test-ubuntu
     runs-on: ubuntu-latest
     permissions:
@@ -17,14 +15,14 @@ jobs:
       attestations: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          global-json-file: global.json
 
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore --locked-mode
 
       - name: Build
         run: dotnet build --configuration Release --no-restore

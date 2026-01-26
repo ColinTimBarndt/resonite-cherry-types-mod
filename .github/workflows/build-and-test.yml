@@ -2,15 +2,12 @@ name: build and test
 
 on:
   push:
-    branches: ["!main"]
+    tags-ignore:
+      - v*
   pull_request:
-    branches: [main]
     paths:
       - "**.cs"
       - "**.csproj"
-
-env:
-  DOTNET_VERSION: "10.0.100"
 
 jobs:
   build-and-test:
@@ -18,14 +15,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          global-json-file: global.json
 
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore --locked-mode
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
