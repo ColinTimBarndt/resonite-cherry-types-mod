@@ -4,11 +4,22 @@ using ResoniteModLoader;
 
 namespace CherryTypes;
 
+/// <summary>
+/// Smarter generic type suggestions for component selectors.
+/// </summary>
 public sealed class CherryTypes : ResoniteMod {
+
+	/// <inheritdoc/>
 	public override string Name => "CherryTypes";
+
+	/// <inheritdoc/>
 	public override string Author => "Colin Tim Barndt";
+
+	/// <inheritdoc/>
 	public override string Version { get; } =
 		System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0";
+
+	/// <inheritdoc/>
 	public override string Link => "https://github.com/ColinTimBarndt/resonite-cherry-types-mod";
 
 	internal static ModConfiguration? Config;
@@ -26,6 +37,7 @@ public sealed class CherryTypes : ResoniteMod {
 		TypeHashListConverter.softError = Warn;
 	}
 
+	/// <inheritdoc/>
 	public override void OnEngineInit() {
 		Config = GetConfiguration();
 		Config!.Save(true);
@@ -36,9 +48,11 @@ public sealed class CherryTypes : ResoniteMod {
 
 	internal static FavoritesByCategory? FavoritesConfig => Config?.GetValue<FavoritesByCategory>(Favorites);
 
+	/// <summary>When checked, enables CherryTypes.</summary>
 	[AutoRegisterConfigKey]
 	public static ModConfigurationKey<bool> Enabled = new("Enabled", "When checked, enables CherryTypes", computeDefault: () => true);
 
+	/// <summary>Favorite types configuration.</summary>
 	[AutoRegisterConfigKey]
 	public static ModConfigurationKey<FavoritesByCategory> Favorites = new("Favorites", computeDefault: () => new());
 }

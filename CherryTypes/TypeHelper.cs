@@ -11,6 +11,14 @@ public static class TypeHelper {
 	private static readonly Dictionary<string, Assembly> assemblies = [];
 	private static readonly Assembly system = typeof(int).Assembly;
 
+	/// <summary>
+	/// Initializes the type cache. This can only be done once.
+	/// Only types from assemblies that were loaded when calling
+	/// this method are recognized.
+	/// </summary>
+	/// <exception cref="InvalidOperationException">
+	/// When <see cref="Init"/> has already been called.
+	/// </exception>
 	public static void Init() {
 		if (assemblies.Count != 0)
 			throw new InvalidOperationException("Already initialized");
@@ -29,6 +37,9 @@ public static class TypeHelper {
 		}
 	}
 
+	/// <summary>
+	/// Converts a <see cref="Type"/> into a text representation that can be parsed using <see cref="Parse(string)"/>.
+	/// </summary>
 	public static string? Stringify(Type type) {
 		if (type.IsGenericParameter)
 			return null;
@@ -64,6 +75,9 @@ public static class TypeHelper {
 		return builder.ToString();
 	}
 
+	/// <summary>
+	/// Parses a <see cref="Type"/> from the text representation used by <see cref="Stringify(Type)"/>.
+	/// </summary>
 	public static Type? Parse(string text) {
 		int pos = 0;
 		return ParseInternal(text, ref pos);

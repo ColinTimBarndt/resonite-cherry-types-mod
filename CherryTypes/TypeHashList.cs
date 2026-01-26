@@ -14,38 +14,50 @@ public sealed class TypeHashList : IList<Type>, ICollection {
 	private readonly Dictionary<Type, int> lookup = [];
 	private readonly List<Type> list = [];
 
+	/// <summary>
+	/// Gets the entry at <paramref name="index"/>.
+	/// </summary>
 	public Type this[int index] {
 		get => list[index]; set => Insert(index, value);
 	}
 
+	/// <inheritdoc/>
 	public int Count => list.Count;
 
+	/// <inheritdoc/>
 	public bool IsReadOnly => false;
 
 	bool ICollection.IsSynchronized => false;
 
 	object ICollection.SyncRoot => this;
 
+	/// <inheritdoc/>
 	public void Add(Type item) {
 		if (lookup.TryAdd(item, list.Count))
 			list.Add(item);
 	}
 
+	/// <inheritdoc/>
 	public void Clear() {
 		lookup.Clear();
 		list.Clear();
 	}
 
+	/// <inheritdoc/>
 	public bool Contains(Type item) => lookup.ContainsKey(item);
 
+	/// <inheritdoc/>
 	public void CopyTo(Type[] array, int arrayIndex) => list.CopyTo(array, arrayIndex);
 
 	void ICollection.CopyTo(Array array, int index) => (list as ICollection).CopyTo(array, index);
 
+	/// <inheritdoc/>
 	public IEnumerator<Type> GetEnumerator() => list.GetEnumerator();
 
+	/// <inheritdoc/>
 	public int IndexOf(Type item) => lookup.TryGetValue(item, out int index) ? index : -1;
 
+	/// <inheritdoc/>
 	public void Insert(int index, Type item) {
 		if (lookup.TryAdd(item, index)) {
 			for (int i = index; i < list.Count; i++) {
@@ -55,6 +67,7 @@ public sealed class TypeHashList : IList<Type>, ICollection {
 		}
 	}
 
+	/// <inheritdoc/>
 	public bool Remove(Type item) {
 		if (lookup.Remove(item, out int index)) {
 			list.RemoveAt(index);
@@ -66,6 +79,7 @@ public sealed class TypeHashList : IList<Type>, ICollection {
 		return false;
 	}
 
+	/// <inheritdoc/>
 	public void RemoveAt(int index) {
 		var type = list[index];
 		lookup.Remove(type);
@@ -77,6 +91,9 @@ public sealed class TypeHashList : IList<Type>, ICollection {
 
 	IEnumerator IEnumerable.GetEnumerator() => list.GetEnumerator();
 
+	/// <summary>
+	/// Swaps the types at the specified indices in place.
+	/// </summary>
 	public void Swap(int a, int b) {
 		var typeA = list[a];
 		var typeB = list[b];
@@ -86,10 +103,19 @@ public sealed class TypeHashList : IList<Type>, ICollection {
 		lookup[typeB] = a;
 	}
 
+	/// <summary>
+	/// Swaps the specified types in this list in place.
+	/// </summary>
+	/// <exception cref="IndexOutOfRangeException">
+	/// When a type is not in this list.
+	/// </exception>
 	public void Swap(Type a, Type b) {
 		Swap(IndexOf(a), IndexOf(b));
 	}
 
+	/// <summary>
+	/// Adds all <paramref name="values"/> to this list.
+	/// </summary>
 	public void AddRange(IEnumerable<Type> values) {
 		if (list.Count == 0) {
 			list.AddRange(values);
@@ -103,11 +129,15 @@ public sealed class TypeHashList : IList<Type>, ICollection {
 	}
 }
 
+/// <summary>
+/// <see cref="JsonConverter{T}"/> for <see cref="TypeHashList"/>.
+/// </summary>
 public class TypeHashListConverter : JsonConverter<TypeHashList> {
 	// For unit tests, there must be no dependency on the mod class.
 	// Instead, the mod changes the soft error action when the mod initializes.
 	internal static Action<string> softError = msg => throw new JsonSerializationException(msg);
 
+	/// <inheritdoc/>
 	public override TypeHashList? ReadJson(JsonReader reader, Type objectType, TypeHashList? existingValue, bool hasExistingValue, JsonSerializer serializer) {
 		TypeHashList? instance = existingValue;
 		if (instance == null)
@@ -134,6 +164,7 @@ public class TypeHashListConverter : JsonConverter<TypeHashList> {
 		return instance;
 	}
 
+	/// <inheritdoc/>
 	public override void WriteJson(JsonWriter writer, TypeHashList? value, JsonSerializer serializer) {
 		writer.WriteStartArray();
 		if (value != null) {
