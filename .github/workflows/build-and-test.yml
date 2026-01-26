@@ -39,3 +39,9 @@ jobs:
       - uses: actions/attest-build-provenance@v3
         with:
           subject-path: "CherryTypes/bin/Release/**/*.dll"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CherryTypes
+          path: "CherryTypes/bin/Release/**/*"
+          if-no-files-found: error
