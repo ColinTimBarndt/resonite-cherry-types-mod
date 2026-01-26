@@ -25,7 +25,6 @@ public sealed class CherryTypes : ResoniteMod {
 
 	public override void OnEngineInit() {
 		Config = GetConfiguration();
-		FavoritesConfig!.Types.Add(typeof(int));
 		Config!.Save(true);
 
 		Harmony harmony = new("cat.colin.CherryTypes");
