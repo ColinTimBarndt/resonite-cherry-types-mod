@@ -1,4 +1,4 @@
-﻿<Project>
+﻿<Project Sdk="Remora.Resonite.Sdk">
 
   <PropertyGroup>
     <ResoniteTarget>client</ResoniteTarget>
