@@ -13,7 +13,10 @@ public sealed class CherryTypes : ResoniteMod {
 
 	internal static ModConfiguration? Config;
 
-	static CherryTypes() {
+	/// <summary>
+	/// Construct a new instance of this mod. Only one instance can ever be created.
+	/// </summary>
+	public CherryTypes() {
 		// OnEngine init is called after the config was already read.
 		// Resonite has already loaded all data model assemblies when this mod is
 		// loaded, so initializing the types is fine here.
