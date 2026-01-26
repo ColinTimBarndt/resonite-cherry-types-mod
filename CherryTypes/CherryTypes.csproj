@@ -5,6 +5,17 @@
 		<ResoniteProjectType>mod</ResoniteProjectType>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<AssemblyTitle>CherryTypes</AssemblyTitle>
+		<AssemblyProduct>$(AssemblyTitle)</AssemblyProduct>
+		<Description>Smarter generic type suggestions for component selectors.</Description>
+		<Company>Colin Tim Barndt</Company>
+		<Copyright>Copyright © 2026 $(Company)</Copyright>
+		<Version>1.0.2</Version>
+		<FileVersion>$(Version)</FileVersion>
+		<AssemblyVersion>$(Version)</AssemblyVersion>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<ResoniteReference Include="FrooxEngine" />
 		<ResoniteReference Include="Elements.Core" />

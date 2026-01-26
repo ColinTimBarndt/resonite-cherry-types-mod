@@ -5,10 +5,10 @@ using ResoniteModLoader;
 namespace CherryTypes;
 
 public sealed class CherryTypes : ResoniteMod {
-	internal const string VERSION_CONSTANT = "1.0.1"; //Changing the version here updates it in all locations needed
 	public override string Name => "CherryTypes";
 	public override string Author => "Colin Tim Barndt";
-	public override string Version => VERSION_CONSTANT;
+	public override string Version { get; } =
+		System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0";
 	public override string Link => "https://github.com/ColinTimBarndt/resonite-cherry-types-mod";
 
 	internal static ModConfiguration? Config;
