@@ -56,54 +56,46 @@ public sealed class TypeHelperTests
     }
 
     [TestMethod]
-    public void StringifyBasicResoniteType()
+    public void StringifyBasicExternalType()
     {
         Assert.AreEqual(
-            "[Elements.Core]Elements.Core.float3",
-            TypeHelper.Stringify(typeof(Elements.Core.float3))
+            "[CherryTypes.Tests]TypeMocks.Foo",
+            TypeHelper.Stringify(typeof(TypeMocks.Foo))
         );
         Assert.AreEqual(
-            "[FrooxEngine]FrooxEngine.Slot",
-            TypeHelper.Stringify(typeof(FrooxEngine.Slot))
+            "[CherryTypes.Tests]TypeMocks.Bar",
+            TypeHelper.Stringify(typeof(TypeMocks.Bar))
         );
     }
 
     [TestMethod]
-    public void ParseBasicResoniteType()
+    public void ParseBasicExternalType()
     {
         Assert.AreEqual(
-            typeof(Elements.Core.float3),
-            TypeHelper.Parse("[Elements.Core]Elements.Core.float3")
+            typeof(TypeMocks.Foo),
+            TypeHelper.Parse("[CherryTypes.Tests]TypeMocks.Foo")
         );
         Assert.AreEqual(
-            typeof(FrooxEngine.Slot),
-            TypeHelper.Parse("[FrooxEngine]FrooxEngine.Slot")
+            typeof(TypeMocks.Bar),
+            TypeHelper.Parse("[CherryTypes.Tests]TypeMocks.Bar")
         );
     }
 
     [TestMethod]
-    public void StringifyGenericResoniteType()
+    public void StringifyGenericExternalType()
     {
         Assert.AreEqual(
-            "[FrooxEngine]FrooxEngine.ValueField`1<[Elements.Core]Elements.Core.float3>",
-            TypeHelper.Stringify(typeof(FrooxEngine.ValueField<Elements.Core.float3>))
-        );
-        Assert.AreEqual(
-            "[FrooxEngine]FrooxEngine.ReferenceField`1<[FrooxEngine]FrooxEngine.Slot>",
-            TypeHelper.Stringify(typeof(FrooxEngine.ReferenceField<FrooxEngine.Slot>))
+            "[CherryTypes.Tests]TypeMocks.Baz`1<[CherryTypes.Tests]TypeMocks.Foo>",
+            TypeHelper.Stringify(typeof(TypeMocks.Baz<TypeMocks.Foo>))
         );
     }
 
     [TestMethod]
-    public void ParseGenericResoniteType()
+    public void ParseGenericExternalType()
     {
         Assert.AreEqual(
-            typeof(FrooxEngine.ValueField<Elements.Core.float3>),
-            TypeHelper.Parse("[FrooxEngine]FrooxEngine.ValueField`1<[Elements.Core]Elements.Core.float3>")
-        );
-        Assert.AreEqual(
-            typeof(FrooxEngine.ReferenceField<FrooxEngine.Slot>),
-            TypeHelper.Parse("[FrooxEngine]FrooxEngine.ReferenceField`1<[FrooxEngine]FrooxEngine.Slot>")
+            typeof(TypeMocks.Baz<TypeMocks.Foo>),
+            TypeHelper.Parse("[CherryTypes.Tests]TypeMocks.Baz`1<[CherryTypes.Tests]TypeMocks.Foo>")
         );
     }
 }

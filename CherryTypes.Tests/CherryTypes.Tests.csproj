@@ -8,8 +8,6 @@
   <ItemGroup>
     <PackageReference Include="MSTest" Version="4.0.1" />
     <ProjectReference Include="../CherryTypes/CherryTypes.csproj" />
-    <ResoniteReference Include="FrooxEngine" />
-    <ResoniteReference Include="Elements.Core" />
   </ItemGroup>
 
   <ItemGroup>

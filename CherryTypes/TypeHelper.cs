@@ -1,8 +1,6 @@
 using System.Reflection;
 using System.Text;
 
-using Elements.Core;
-
 namespace CherryTypes;
 
 /// <summary>
@@ -110,33 +108,29 @@ public static class TypeHelper {
 			return null;
 
 		// Parse generic parameters
-		var args = Pool.BorrowList<Type>();
-		try {
-			while (true) {
-				var genArg = ParseInternal(text, ref pos);
-				if (genArg == null)
-					return null;
-				args.Add(genArg);
-				switch (text[pos]) {
-					case ',':
-						pos++;
-						SkipWhitespace(text, ref pos);
-						continue;
-					case '>':
-						pos++;
-						goto End;
-					default:
-						return null;
-				}
-			}
-		End:
-			try {
-				return baseType.MakeGenericType([.. args]);
-			} catch {
+		var args = new List<Type>();
+		while (true) {
+			var genArg = ParseInternal(text, ref pos);
+			if (genArg == null)
 				return null;
+			args.Add(genArg);
+			switch (text[pos]) {
+				case ',':
+					pos++;
+					SkipWhitespace(text, ref pos);
+					continue;
+				case '>':
+					pos++;
+					goto End;
+				default:
+					return null;
 			}
-		} finally {
-			Pool.Return(ref args);
+		}
+	End:
+		try {
+			return baseType.MakeGenericType([.. args]);
+		} catch {
+			return null;
 		}
 	}
 

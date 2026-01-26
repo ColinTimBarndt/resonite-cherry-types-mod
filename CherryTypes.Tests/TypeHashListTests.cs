@@ -11,19 +11,19 @@ public sealed class TypeHashListTests
         TypeHashList list = [
             typeof(int),
             typeof(string),
-            typeof(FrooxEngine.Slot),
-            typeof(Elements.Core.float3),
+            typeof(TypeMocks.Foo),
+            typeof(TypeMocks.Baz<int>),
         ];
 
         string output = JsonConvert.SerializeObject(list);
 
-        Assert.AreEqual("""["System.Int32","System.String","[FrooxEngine]FrooxEngine.Slot","[Elements.Core]Elements.Core.float3"]""", output);
+        Assert.AreEqual("""["System.Int32","System.String","[CherryTypes.Tests]TypeMocks.Foo","[CherryTypes.Tests]TypeMocks.Baz`1<System.Int32>"]""", output);
     }
 
     [TestMethod]
     public void Deserialize()
     {
-        string input = """["System.Int32","System.String","[FrooxEngine]FrooxEngine.Slot","[Elements.Core]Elements.Core.float3"]""";
+        string input = """["System.Int32","System.String","[CherryTypes.Tests]TypeMocks.Foo","[CherryTypes.Tests]TypeMocks.Baz`1<System.Int32>"]""";
 
         var output = JsonConvert.DeserializeObject<TypeHashList>(input);
 
@@ -31,8 +31,8 @@ public sealed class TypeHashListTests
         Assert.AreEqual(4, output.Count);
         Assert.AreEqual(typeof(int), output[0]);
         Assert.AreEqual(typeof(string), output[1]);
-        Assert.AreEqual(typeof(FrooxEngine.Slot), output[2]);
-        Assert.AreEqual(typeof(Elements.Core.float3), output[3]);
+        Assert.AreEqual(typeof(TypeMocks.Foo), output[2]);
+        Assert.AreEqual(typeof(TypeMocks.Baz<int>), output[3]);
     }
 
     [TestMethod]
@@ -56,26 +56,26 @@ public sealed class TypeHashListTests
         TypeHashList list = [
             typeof(int),
             typeof(string),
-            typeof(FrooxEngine.Slot),
-            typeof(Elements.Core.float3),
+            typeof(TypeMocks.Foo),
+            typeof(TypeMocks.Bar),
         ];
 
         list[1] = typeof(float);
 
         CollectionAssert.AreEqual(
-            new List<Type>([typeof(int), typeof(float), typeof(string), typeof(FrooxEngine.Slot), typeof(Elements.Core.float3)]),
+            new List<Type>([typeof(int), typeof(float), typeof(string), typeof(TypeMocks.Foo), typeof(TypeMocks.Bar)]),
             list
         );
         Assert.AreEqual(0, list.IndexOf(typeof(int)));
         Assert.AreEqual(1, list.IndexOf(typeof(float)));
         Assert.AreEqual(2, list.IndexOf(typeof(string)));
-        Assert.AreEqual(3, list.IndexOf(typeof(FrooxEngine.Slot)));
-        Assert.AreEqual(4, list.IndexOf(typeof(Elements.Core.float3)));
+        Assert.AreEqual(3, list.IndexOf(typeof(TypeMocks.Foo)));
+        Assert.AreEqual(4, list.IndexOf(typeof(TypeMocks.Bar)));
 
         list[2] = typeof(int);
 
         CollectionAssert.AreEqual(
-            new List<Type>([typeof(int), typeof(float), typeof(string), typeof(FrooxEngine.Slot), typeof(Elements.Core.float3)]),
+            new List<Type>([typeof(int), typeof(float), typeof(string), typeof(TypeMocks.Foo), typeof(TypeMocks.Bar)]),
             list
         );
     }
@@ -86,19 +86,19 @@ public sealed class TypeHashListTests
         TypeHashList list = [
             typeof(int),
             typeof(string),
-            typeof(FrooxEngine.Slot),
-            typeof(Elements.Core.float3),
+            typeof(TypeMocks.Foo),
+            typeof(TypeMocks.Bar),
         ];
 
-        list.Remove(typeof(FrooxEngine.Slot));
+        list.Remove(typeof(TypeMocks.Foo));
 
         CollectionAssert.AreEqual(
-            new List<Type>([typeof(int), typeof(string), typeof(Elements.Core.float3)]),
+            new List<Type>([typeof(int), typeof(string), typeof(TypeMocks.Bar)]),
             list
         );
         Assert.AreEqual(0, list.IndexOf(typeof(int)));
         Assert.AreEqual(1, list.IndexOf(typeof(string)));
-        Assert.AreEqual(-1, list.IndexOf(typeof(FrooxEngine.Slot)));
-        Assert.AreEqual(2, list.IndexOf(typeof(Elements.Core.float3)));
+        Assert.AreEqual(-1, list.IndexOf(typeof(TypeMocks.Foo)));
+        Assert.AreEqual(2, list.IndexOf(typeof(TypeMocks.Bar)));
     }
 }
