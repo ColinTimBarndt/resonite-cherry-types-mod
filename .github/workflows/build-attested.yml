@@ -1,13 +1,8 @@
-name: build and test
+name: build attested
 
 on:
   push:
-    branches: ["!main"]
-  pull_request:
     branches: [main]
-    paths:
-      - "**.cs"
-      - "**.csproj"
 
 env:
   DOTNET_VERSION: "10.0.100"
@@ -32,3 +27,24 @@ jobs:
 
       - name: Test
         run: dotnet test --no-restore --verbosity normal
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: CherryTypes
+          path: "CherryTypes/bin/Release/**/*"
+          if-no-files-found: error
+
+  attest:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    steps:
+      - name: Attest
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: "CherryTypes/bin/Release/**/*.dll"

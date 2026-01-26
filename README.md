@@ -1,4 +1,4 @@
-![build and test workflow status](https://github.com/ColinTimBarndt/resonite-cherry-types-mod/actions/workflows/build-and-test.yml/badge.svg?branch=main)
+![build and test workflow status](https://github.com/ColinTimBarndt/resonite-cherry-types-mod/actions/workflows/build-attested.yml/badge.svg?branch=main)
 
 # CherryTypes
 
