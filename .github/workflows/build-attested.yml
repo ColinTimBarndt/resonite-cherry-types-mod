@@ -1,9 +1,6 @@
 name: build attested
 
 on:
-  push:
-    tags:
-      - v*
   workflow_dispatch: {}
 
 jobs:
