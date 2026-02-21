@@ -1,8 +1,10 @@
 ﻿namespace CherryTypes.Tests;
 
+/// Tests for <see cref="TypeHelper" />.
 [TestClass]
 public sealed class TypeHelperTests
 {
+    /// Can system types be converted to strings?
     [TestMethod]
     public void StringifyBasicSystemType()
     {
@@ -16,6 +18,7 @@ public sealed class TypeHelperTests
         );
     }
 
+    /// Can system types be parsed?
     [TestMethod]
     public void ParseBasicSystemType()
     {
@@ -29,32 +32,35 @@ public sealed class TypeHelperTests
         );
     }
 
+    /// Can generic system types be converted to strings?
     [TestMethod]
     public void StringifyGenericSystemType()
     {
         Assert.AreEqual(
             "System.Collections.Generic.Dictionary`2",
-            TypeHelper.Stringify(typeof(System.Collections.Generic.Dictionary<,>))
+            TypeHelper.Stringify(typeof(Dictionary<,>))
         );
         Assert.AreEqual(
             "System.Collections.Generic.Dictionary`2<System.String, System.Int32>",
-            TypeHelper.Stringify(typeof(System.Collections.Generic.Dictionary<string, int>))
+            TypeHelper.Stringify(typeof(Dictionary<string, int>))
         );
     }
 
+    /// Can generic system types be parsed?
     [TestMethod]
     public void ParseGenericSystemType()
     {
         Assert.AreEqual(
-            typeof(System.Collections.Generic.Dictionary<,>),
+            typeof(Dictionary<,>),
             TypeHelper.Parse("System.Collections.Generic.Dictionary`2")
         );
         Assert.AreEqual(
-            typeof(System.Collections.Generic.Dictionary<string, int>),
+            typeof(Dictionary<string, int>),
             TypeHelper.Parse("System.Collections.Generic.Dictionary`2<System.String, System.Int32>")
         );
     }
 
+    /// Can external types be converted to strings?
     [TestMethod]
     public void StringifyBasicExternalType()
     {
@@ -68,6 +74,7 @@ public sealed class TypeHelperTests
         );
     }
 
+    /// Can external types be parsed?
     [TestMethod]
     public void ParseBasicExternalType()
     {
@@ -81,6 +88,7 @@ public sealed class TypeHelperTests
         );
     }
 
+    /// Can generic external types be converted to strings?
     [TestMethod]
     public void StringifyGenericExternalType()
     {
@@ -90,6 +98,7 @@ public sealed class TypeHelperTests
         );
     }
 
+    /// Can generic external types be parsed?
     [TestMethod]
     public void ParseGenericExternalType()
     {

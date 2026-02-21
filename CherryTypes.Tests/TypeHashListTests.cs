@@ -3,6 +3,7 @@ using System.Text.Json;
 
 namespace CherryTypes.Tests;
 
+/// Tests for <see cref="TypeHashList" />.
 [TestClass]
 public sealed class TypeHashListTests
 {
@@ -11,6 +12,7 @@ public sealed class TypeHashListTests
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
+    /// Does it correctly serialize into JSON?
     [TestMethod]
     public void Serialize()
     {
@@ -26,6 +28,7 @@ public sealed class TypeHashListTests
         Assert.AreEqual("""["System.Int32","System.String","[CherryTypes.Tests]TypeMocks.Foo","[CherryTypes.Tests]TypeMocks.Baz`1<System.Int32>"]""", output);
     }
 
+    /// Does it correctly deserialize from JSON?
     [TestMethod]
     public void Deserialize()
     {
@@ -41,6 +44,7 @@ public sealed class TypeHashListTests
         Assert.AreEqual(typeof(TypeMocks.Baz<int>), output[3]);
     }
 
+    /// Can types be added?
     [TestMethod]
     public void Addition()
     {
@@ -56,6 +60,7 @@ public sealed class TypeHashListTests
         Assert.AreEqual(1, list.IndexOf(typeof(string)));
     }
 
+    /// Can types be inserted at a specific index?
     [TestMethod]
     public void Insertion()
     {
@@ -86,6 +91,7 @@ public sealed class TypeHashListTests
         );
     }
 
+    /// Can types be removed?
     [TestMethod]
     public void Removal()
     {
