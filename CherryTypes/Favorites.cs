@@ -10,25 +10,25 @@ public class FavoritesByCategory() {
 	/// <summary>
 	/// Favorite types for generic type suggestions.
 	/// </summary>
-	public TypeHashList Types = [];
+	public TypeHashList Types { get; set; } = [];
 
 	/// <summary>
 	/// Favorite components for the component selector.
 	/// </summary>
-	public TypeHashList Components = [];
+	public TypeHashList Components { get; set; } = [];
 
 	/// <summary>
 	/// Favorite ProtoFlux nodes for the node selector.
 	/// </summary>
-	public TypeHashList ProtoFluxNodes = [];
+	public TypeHashList ProtoFluxNodes { get; set; } = [];
 
 	/// <summary>
 	/// Access the respective favorites by its category.
 	/// </summary>
 	public TypeHashList this[FavoritesCategory category] => category switch {
-		FavoritesCategory.Types => this.Types,
-		FavoritesCategory.Components => this.Components,
-		FavoritesCategory.ProtoFluxNodes => this.ProtoFluxNodes,
+		FavoritesCategory.Types => Types,
+		FavoritesCategory.Components => Components,
+		FavoritesCategory.ProtoFluxNodes => ProtoFluxNodes,
 		_ => throw new IndexOutOfRangeException(),
 	};
 }

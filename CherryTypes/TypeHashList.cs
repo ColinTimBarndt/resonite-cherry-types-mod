@@ -1,7 +1,7 @@
 using System.Collections;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CherryTypes;
 
@@ -135,47 +135,48 @@ public sealed class TypeHashList : IList<Type>, ICollection {
 public class TypeHashListConverter : JsonConverter<TypeHashList> {
 	// For unit tests, there must be no dependency on the mod class.
 	// Instead, the mod changes the soft error action when the mod initializes.
-	internal static Action<string> softError = msg => throw new JsonSerializationException(msg);
+	internal static Action<string> softError = msg => throw new JsonException(msg);
 
 	/// <inheritdoc/>
-	public override TypeHashList? ReadJson(JsonReader reader, Type objectType, TypeHashList? existingValue, bool hasExistingValue, JsonSerializer serializer) {
-		TypeHashList? instance = existingValue;
-		if (instance == null)
-			instance = [];
-		else
-			instance.Clear();
+	public override TypeHashList? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+		TypeHashList instance = [];
 
-		if (reader.TokenType == JsonToken.Null)
-			return instance;
+		switch (reader.TokenType) {
+			case JsonTokenType.Null:
+				return instance;
 
-		foreach (var token in JArray.Load(reader)) {
-			if (token.Type != JTokenType.String)
-				throw new JsonSerializationException("Expected string when deserializing TypeHashList.");
+			case JsonTokenType.StartArray:
+				reader.Read();
+				while (reader.TokenType != JsonTokenType.EndArray) {
+					string? typeString = reader.GetString();
+					reader.Read();
+					if (typeString == null)
+						continue;
 
-			string typeString = token.Value<string>()!;
-			var type = TypeHelper.Parse(typeString);
+					var type = TypeHelper.Parse(typeString);
 
-			if (type != null)
-				instance.Add(type);
-			else
-				softError($"Type '{typeString}' was not found! Ignoring.");
+					if (type != null)
+						instance.Add(type);
+					else
+						softError($"Type '{typeString}' was not found! Ignoring.");
+				}
+				return instance;
+
+			default:
+				throw new JsonException("Expected array");
 		}
-
-		return instance;
 	}
 
 	/// <inheritdoc/>
-	public override void WriteJson(JsonWriter writer, TypeHashList? value, JsonSerializer serializer) {
+	public override void Write(Utf8JsonWriter writer, TypeHashList value, JsonSerializerOptions options) {
 		writer.WriteStartArray();
-		if (value != null) {
-			foreach (var type in value) {
-				var typeString = TypeHelper.Stringify(type);
+		foreach (var type in value) {
+			var typeString = TypeHelper.Stringify(type);
 
-				if (typeString != null)
-					writer.WriteValue(typeString);
-				else
-					softError($"Type '{type}' cannot be serialized! Skipping.");
-			}
+			if (typeString != null)
+				writer.WriteStringValue(typeString);
+			else
+				softError($"Type '{type}' cannot be serialized! Skipping.");
 		}
 		writer.WriteEndArray();
 	}

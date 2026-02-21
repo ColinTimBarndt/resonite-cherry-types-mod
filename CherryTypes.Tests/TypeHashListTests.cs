@@ -1,10 +1,16 @@
-using Newtonsoft.Json;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 
 namespace CherryTypes.Tests;
 
 [TestClass]
 public sealed class TypeHashListTests
 {
+    static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Strict)
+    {
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    };
+
     [TestMethod]
     public void Serialize()
     {
@@ -15,7 +21,7 @@ public sealed class TypeHashListTests
             typeof(TypeMocks.Baz<int>),
         ];
 
-        string output = JsonConvert.SerializeObject(list);
+        string output = JsonSerializer.Serialize(list, JsonOptions);
 
         Assert.AreEqual("""["System.Int32","System.String","[CherryTypes.Tests]TypeMocks.Foo","[CherryTypes.Tests]TypeMocks.Baz`1<System.Int32>"]""", output);
     }
@@ -25,7 +31,7 @@ public sealed class TypeHashListTests
     {
         string input = """["System.Int32","System.String","[CherryTypes.Tests]TypeMocks.Foo","[CherryTypes.Tests]TypeMocks.Baz`1<System.Int32>"]""";
 
-        var output = JsonConvert.DeserializeObject<TypeHashList>(input);
+        var output = JsonSerializer.Deserialize<TypeHashList>(input);
 
         Assert.IsNotNull(output);
         Assert.AreEqual(4, output.Count);
