@@ -2,6 +2,8 @@
 
 # CherryTypes
 
+**Development has moved to <https://forge.colintimbarndt.de/Colin/resonite-cherry-types-mod>.**
+
 A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader) mod for [Resonite](https://resonite.com/) that lets you favorite generic types (components and ProtoFlux nodes are planned in the future). Favorited types are pinned to the top for easier access. If you specify a custom generic argument, it can also be favorited.
 
 I made this mod to complement [Cyro's CherryPick mod](https://cyro.blue/cyro/CherryPick) because typing on a VR keyboard is slow.
